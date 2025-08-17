@@ -14,4 +14,6 @@ public interface MedicineService {
 
     Medicine updateMedicine(Long id, Medicine medicine);
     void deleteMedicine(Long id);
+
+
 }

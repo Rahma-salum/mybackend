@@ -41,4 +41,9 @@ public class PharmacistAPI {
     public void deletePharmacist(@PathVariable Long id) {
         pharmacistService.deletePharmacist(id);
     }
+
+    @GetMapping("/count")
+    public int getTotalPharmacist() {
+        return pharmacistService.countPharmacist();
+    }
 }

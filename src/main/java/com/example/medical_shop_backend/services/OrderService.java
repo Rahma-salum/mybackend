@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +60,59 @@ public class OrderService {
         order.setStatus(order.getStatus() != null ? order.getStatus() : "Pending");
         order.setTotalPrice(medicine.getPrice() * requestedQty);
 
+        return orderRepository.save(order);
+    }
+
+    public List<Order> getAllOrders(){
+        return orderRepository.findAll();
+    }
+
+    public Optional<Order> getOrderById(Long id){
+        return orderRepository.findById(id);
+    }
+
+    public void deleteOrder(Long id){
+        orderRepository.deleteById(id);
+    }
+
+    // ✅ Cancel order and restore medicine stock
+    @Transactional
+    public Order cancelOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if ("Canceled".equalsIgnoreCase(order.getStatus())) {
+            throw new RuntimeException("Order is already canceled");
+        }
+
+        Medicine medicine = order.getMedicine();
+
+        // Restore medicine stock
+        medicine.setQuantity(medicine.getQuantity() + order.getQuantity());
+        medicineRepository.save(medicine);
+
+        // Update order status
+        order.setStatus("Canceled");
+        return orderRepository.save(order);
+    }
+
+
+    // Approve order
+    @Transactional
+    public Order approveOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with ID " + orderId));
+
+        if ("Approved".equalsIgnoreCase(order.getStatus())) {
+            throw new RuntimeException("Order is already approved");
+        }
+
+        if ("Canceled".equalsIgnoreCase(order.getStatus())) {
+            throw new RuntimeException("Cannot approve a canceled order");
+        }
+
+        // Approve order
+        order.setStatus("Approved");
         return orderRepository.save(order);
     }
 }

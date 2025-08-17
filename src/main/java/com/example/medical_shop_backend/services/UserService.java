@@ -21,8 +21,15 @@ public class UserService {
 
     // Save a new user (Customer or Pharmacist)
     public User saveUser(User user) {
+        boolean emailExists = userRepository.findByEmail(user.getEmail()).isPresent();
+        if (emailExists) {
+            throw new RuntimeException("EMAIL_EXISTS");
+        }
         return userRepository.save(user);
     }
 
+    public Optional<User> findById(Long id){
+        return userRepository.findById(id);
+    }
 
 }

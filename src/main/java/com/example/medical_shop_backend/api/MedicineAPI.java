@@ -1,16 +1,20 @@
 package com.example.medical_shop_backend.api;
 
+import com.example.medical_shop_backend.dto.DTOMapper;
+import com.example.medical_shop_backend.dto.MedicineDTO;
 import com.example.medical_shop_backend.models.Medicine;
 import com.example.medical_shop_backend.models.Pharmacy;
 
 import com.example.medical_shop_backend.repository.MedicineRepository;
 import com.example.medical_shop_backend.repository.PharmacyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/medicines")
@@ -24,16 +28,54 @@ public class MedicineAPI {
     private  PharmacyRepository pharmacyRepository;
 
 
+    // Get all medicines
+    @GetMapping("/wewe")
+    public ResponseEntity<List<MedicineDTO>> getAllMedicinesa() {
+        List<Medicine> medicines = medicineRepository.findAll();
+        List<MedicineDTO> dtoList = medicines.stream()
+                .map(DTOMapper::toMedicineDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtoList);
+    }
+
+    // Search medicines by name (case-insensitive)
+    @GetMapping("/search")
+    public ResponseEntity<List<MedicineDTO>> searchMedicine(@RequestParam String name) {
+        List<Medicine> medicines = medicineRepository.findByNameIgnoreCase(name);
+        List<MedicineDTO> dtoList = medicines.stream()
+                .map(DTOMapper::toMedicineDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtoList);
+    }
+
+
     @GetMapping
-    public List<Medicine> getAllMedicines() {
-        return medicineRepository.findAll();
+    public ResponseEntity<?> getAllMedicines() {
+        try {
+            List<Medicine> medicineList = medicineRepository.findAll();
+            if(medicineList.isEmpty()){
+                return new ResponseEntity<>("No Medicine Available", HttpStatus.NOT_FOUND);
+            }else {
+                return new ResponseEntity<>(medicineList, HttpStatus.OK);
+            }
+        }catch (Exception exception){
+            return new ResponseEntity<>("Some errors occur", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Medicine> getMedicineById(@PathVariable Long id) {
-        return medicineRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getMedicineById(@PathVariable Long id) {
+        Optional<Medicine> medicineOptional = medicineRepository.findById(id);
+        try {
+            if (medicineOptional.isEmpty()){
+                return new ResponseEntity<>("No medicine available",HttpStatus.NOT_FOUND);
+            }else {
+                return new ResponseEntity<>(medicineOptional,HttpStatus.OK);
+            }
+        }catch (Exception exception){
+            return new ResponseEntity<>("Some errors occur", HttpStatus.BAD_REQUEST);
+        }
+
     }
 
     @PostMapping("/pharmacy/{pharmacyId}")

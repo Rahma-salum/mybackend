@@ -25,7 +25,13 @@ public class Payment {
     private LocalDateTime paymentDate;
 
     @Column(nullable = false)
-    private String paymentMethod;
+    private String payedAmount;
+
+    @Column(nullable = false)
+    private double remainingBalance;
+
+    @Column(nullable = false)
+    private String controlNumber;
 
     @Column(nullable = false)
     private String status;
@@ -58,14 +64,6 @@ public class Payment {
         this.paymentDate = paymentDate;
     }
 
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -80,5 +78,29 @@ public class Payment {
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public String getPayedAmount() {
+        return payedAmount;
+    }
+
+    public void setPayedAmount(String payedAmount) {
+        this.payedAmount = payedAmount;
+    }
+
+    public String getControlNumber() {
+        return controlNumber;
+    }
+
+    public void setControlNumber(String controlNumber) {
+        this.controlNumber = controlNumber;
+    }
+
+    public double getRemainingBalance() {
+        return remainingBalance;
+    }
+
+    public void setRemainingBalance(double remainingBalance) {
+        this.remainingBalance = remainingBalance;
     }
 }

@@ -63,4 +63,10 @@ public class PharmacistService {
     public void deletePharmacist(Long id) {
         pharmacistRepository.deleteById(id);
     }
+
+
+    public int countPharmacist() {
+        return (int) pharmacistRepository.count();
+    }
+
 }
